@@ -59,29 +59,32 @@
       font-size: 20px;
     }
 
-    /* 좌측 하단 UI */
-    .research-box {
+    /* 좌측 하단 영역 */
+    .left-box {
       position: absolute;
       left: 32px;
       bottom: 40px;
-      width: 96px;
       border: 2px solid #000;
-      cursor: pointer;
     }
 
-    .research-label {
+    .label-research {
       font-size: 12px;
       background: #f7d9c7;
       border-bottom: 2px solid #000;
       text-align: center;
       padding: 4px 0;
+      cursor: pointer;
+      /* 활성 버튼 */
     }
 
-    .research-main {
+    .storage-disabled {
       padding: 10px 0;
+      width: 96px;
       font-size: 18px;
       background: #f7d9c7;
       text-align: center;
+      cursor: default;
+      opacity: 0.5;
     }
 
     /* 우측 하단 나가기 (비활성) */
@@ -171,10 +174,10 @@
       <!-- 가게 운영 시작 (비활성) -->
       <div class="btn btn-start btn-disabled">가게 운영 시작</div>
 
-      <!-- 가게 연구 버튼(활성 클릭 영역 전체) -->
-      <div id="btnOpenResearch" class="research-box">
-        <div class="research-label">가게 연구</div>
-        <div class="research-main">창고</div>
+      <!-- 좌측 박스: 위는 활성(가게 연구 버튼), 아래는 비활성 창고 -->
+      <div class="left-box">
+        <div id="btnOpenResearch" class="label-research">가게 연구</div>
+        <div class="storage-disabled">창고</div>
       </div>
 
       <!-- 나가기 (비활성) -->
