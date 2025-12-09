@@ -28,7 +28,12 @@ body{font-family:system-ui;display:flex;justify-content:center;align-items:cente
 }
 .research-title{text-align:center;font-size:20px;font-weight:700;}
 
-/* 스크롤 영역 */
+/* 레벨 선택 */
+.level-select{display:flex;gap:8px;justify-content:center;margin-top:6px;}
+.level-btn{padding:4px 10px;border:2px solid #000;background:#fff;cursor:pointer;font-size:13px;}
+.level-btn.active{background:#ffd06e;}
+
+/* 연구 영역 */
 .node-area{
   position:relative;
   border:2px solid #000;
@@ -37,13 +42,11 @@ body{font-family:system-ui;display:flex;justify-content:center;align-items:cente
   overflow:auto;
   height:240px;
 }
-
-/* SVG 연결선 */
 #lineLayer{
   position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;
 }
 
-/* 노드 박스 */
+/* 노드 */
 .node{
   width:140px;
   border:2px solid #000;
@@ -52,26 +55,30 @@ body{font-family:system-ui;display:flex;justify-content:center;align-items:cente
   cursor:pointer;
   position:absolute;
 }
-.node.unlocked{opacity:1;}
 .node.locked{opacity:.35;pointer-events:none;}
 .node.recipe.active{background:#c8efb4;}
 .node.equip.active{background:#cbe0ff;}
 
-.node-title{padding:10px;font-size:14px;}
-.condition{padding:6px;font-size:13px;border-top:2px solid #000;background:#ddd;cursor:pointer;}
+/* 조건 */
+.condition{
+  padding:6px;font-size:13px;border-top:2px solid #000;cursor:pointer;background:#ddd;
+}
 .condition.met{background:#cfe1ff;}
 
-/* 레벨 표시 & 버튼 */
+/* 최초 노드 항상 초록색 */
+.node.recipe[data-lv="1"]{
+  background:#c8efb4 !important;
+}
+.node.recipe[data-lv="1"] .condition{
+  background:#c8efb4 !important;
+}
+
+/* 팝업 하단 */
 .research-bottom{
   display:flex;justify-content:space-between;align-items:center;
 }
 .store-level{background:#1b1b1b;color:#fff;padding:6px 12px;border-radius:6px;}
 .btn-research-exit{padding:6px 12px;background:#444;color:#fff;border-radius:6px;cursor:pointer;}
-
-/* 레벨 선택 UI */
-.level-select{display:flex;gap:8px;justify-content:center;margin-top:6px;}
-.level-btn{padding:4px 10px;border:2px solid #000;background:#fff;cursor:pointer;font-size:13px;}
-.level-btn.active{background:#ffd06e;}
 </style>
 </head>
 <body>
@@ -93,7 +100,6 @@ body{font-family:system-ui;display:flex;justify-content:center;align-items:cente
   <div id="researchPopup" class="popup-research">
     <div class="research-title">가게 연구</div>
 
-    <!-- 레벨 선택 -->
     <div class="level-select">
       <div class="level-btn active" data-level="1">Lv1</div>
       <div class="level-btn" data-level="2">Lv2</div>
@@ -102,61 +108,59 @@ body{font-family:system-ui;display:flex;justify-content:center;align-items:cente
       <div class="level-btn" data-level="5">Lv5</div>
     </div>
 
-    <!-- 연구 영역 -->
     <div class="node-area" id="nodeArea">
       <svg id="lineLayer"></svg>
 
-      <!-- 노드 정의 및 위치 -->
-      <div class="node recipe" id="node1"
-        data-lv="1" data-condition="시작 노드"
-        style="left:40px; top:100px;">
+      <!-- 좌 → 우 상단: 레시피 -->
+      <div class="node recipe unlocked active" id="node1"
+           data-lv="1" data-condition="시작 노드"
+           style="left:40px; top:40px;">
         <div class="node-title">불고기 버거</div>
         <div class="condition met">조건</div>
       </div>
 
       <div class="node recipe locked" id="node2"
-        data-lv="2" data-condition="Lv1 연구 완료"
-        style="left:260px; top:40px;">
+           data-lv="2" data-condition="Lv1 연구 완료"
+           style="left:260px; top:40px;">
         <div class="node-title">치즈 버거</div>
         <div class="condition">조건</div>
       </div>
 
-      <div class="node equip locked" id="node3"
-        data-lv="2" data-condition="Lv1 연구 완료"
-        style="left:260px; top:160px;">
-        <div class="node-title">자동 조리기</div>
-        <div class="condition">조건</div>
-      </div>
-
       <div class="node recipe locked" id="node4"
-        data-lv="3" data-condition="치즈 버거 연구 완료"
-        style="left:480px; top:40px;">
+           data-lv="3" data-condition="치즈 버거 연구 완료"
+           style="left:480px; top:40px;">
         <div class="node-title">새우 버거</div>
         <div class="condition">조건</div>
       </div>
 
+      <!-- 좌 → 우 하단: 장비 -->
+      <div class="node equip locked" id="node3"
+           data-lv="2" data-condition="Lv1 연구 완료"
+           style="left:260px; top:160px;">
+        <div class="node-title">자동 조리기</div>
+        <div class="condition">조건</div>
+      </div>
+
       <div class="node equip locked" id="node5"
-        data-lv="3" data-condition="자동 조리기 연구 완료"
-        style="left:480px; top:160px;">
+           data-lv="3" data-condition="자동 조리기 연구 완료"
+           style="left:480px; top:160px;">
         <div class="node-title">자동 서빙기</div>
         <div class="condition">조건</div>
       </div>
 
       <div class="node equip locked" id="node6"
-        data-lv="4" data-condition="새우 버거 연구 완료"
-        style="left:700px; top:100px;">
+           data-lv="4" data-condition="새우 버거 연구 완료"
+           style="left:700px; top:100px;">
         <div class="node-title">재료 자동주문</div>
         <div class="condition">조건</div>
       </div>
 
     </div>
 
-    <!-- 바닥 -->
     <div class="research-bottom">
       <div class="store-level" id="storeLevel">가게 레벨: 1</div>
       <div id="btnBackToMain" class="btn-research-exit">나가기</div>
     </div>
-
   </div>
 
 </div>
@@ -173,37 +177,42 @@ body{font-family:system-ui;display:flex;justify-content:center;align-items:cente
 
 <script>
 // 팝업 이동
-btnOpenResearch.onclick = () => {mainPopup.style.display="none";researchPopup.style.display="flex";setTimeout(drawLines,50);}
-btnBackToMain.onclick = () => {researchPopup.style.display="none";mainPopup.style.display="block";}
+btnOpenResearch.onclick = () =>{
+  mainPopup.style.display="none";
+  researchPopup.style.display="flex";
+  setTimeout(drawLines,50);
+};
+btnBackToMain.onclick = ()=>{
+  researchPopup.style.display="none";
+  mainPopup.style.display="block";
+};
 
-// 노드 선택 관련
+// 노드 & 조건
 const nodes = document.querySelectorAll(".node");
 const conditions = document.querySelectorAll(".condition");
-
-// 노드 클릭 -> 활성화 토글 + 팝업
 nodes.forEach(node=>{
-  node.addEventListener("click",e=>{
-    if(node.classList.contains("locked"))return;
+  node.onclick = e =>{
+    if(node.classList.contains("locked")) return;
     node.classList.toggle("active");
     modalText.textContent=node.dataset.condition;
     modal.style.display="flex";
+    drawLines();
     e.stopPropagation();
-  });
+  };
 });
-// 조건 클릭 -> 파란색 토글
 conditions.forEach(cond=>{
-  cond.addEventListener("click",e=>{
+  cond.onclick = e =>{
     if(cond.parentElement.classList.contains("locked"))return;
     cond.classList.toggle("met");
     e.stopPropagation();
-  });
+  };
 });
 modalClose.onclick = ()=> modal.style.display="none";
 
-// 레벨 해금
+// 레벨 선택
 const levelBtns=document.querySelectorAll(".level-btn");
 levelBtns.forEach(btn=>{
-  btn.onclick=()=>{
+  btn.onclick = ()=>{
     levelBtns.forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
     const lv=parseInt(btn.dataset.level);
@@ -213,38 +222,44 @@ levelBtns.forEach(btn=>{
   }
 });
 
+// 노드 해금(조건 기본: 파란색)
 function updateNodeUnlock(lv){
   nodes.forEach(n=>{
     const req=parseInt(n.dataset.lv);
-    if(req<=lv){n.classList.remove("locked");}
-    else{
+    const cond = n.querySelector(".condition");
+
+    if(req<=lv){
+      n.classList.remove("locked");
+      cond.classList.add("met"); // 조건 기본 파란색
+    } else {
       n.classList.add("locked");
       n.classList.remove("active");
-      n.querySelector(".condition").classList.remove("met");
+      cond.classList.remove("met");
     }
   });
+
+  // 최초 노드는 항상 초록색 강제
+  const first = document.getElementById("node1");
+  first.classList.add("active");
+  first.querySelector(".condition").classList.add("met");
 }
 
-// 연결선 그리기
+
+// 연결선 SVG 자동 재배치
 function drawLines(){
   const svg=document.getElementById("lineLayer");
   svg.innerHTML="";
 
-  function connect(idA,idB){
-    const A=document.getElementById(idA).getBoundingClientRect();
-    const B=document.getElementById(idB).getBoundingClientRect();
+  function connect(a,b){
+    const A=document.getElementById(a).getBoundingClientRect();
+    const B=document.getElementById(b).getBoundingClientRect();
     const area=document.getElementById("nodeArea").getBoundingClientRect();
-
-    const x1=A.right-area.left;
-    const y1=A.top + A.height/2 - area.top;
-    const x2=B.left-area.left;
-    const y2=B.top + B.height/2 - area.top;
-
     const line=document.createElementNS("http://www.w3.org/2000/svg","line");
-    line.setAttribute("x1",x1);
-    line.setAttribute("y1",y1);
-    line.setAttribute("x2",x2);
-    line.setAttribute("y2",y2);
+
+    line.setAttribute("x1",A.right-area.left);
+    line.setAttribute("y1",A.top + A.height/2 - area.top);
+    line.setAttribute("x2",B.left-area.left);
+    line.setAttribute("y2",B.top + B.height/2 - area.top);
     line.setAttribute("stroke","#000");
     line.setAttribute("stroke-width","3");
     svg.appendChild(line);
