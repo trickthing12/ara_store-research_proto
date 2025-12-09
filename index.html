@@ -1,507 +1,413 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>가게 연구 시스템 프로토타입</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8" />
+<title>가게 연구 시스템 프로토타입</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: system-ui;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #ffffff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+/* overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-    .overlay {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+/* 최초 팝업 */
+.popup-main {
+  width: 360px; height: 260px;
+  border: 3px solid #000;
+  background: #0f607a;
+  position: relative;
+  padding: 20px;
+}
 
-    /* ----------------- 최초 팝업 ----------------- */
-    .popup-main {
-      background: #0f607a;
-      border: 3px solid #000;
-      width: 360px;
-      height: 260px;
-      position: relative;
-      padding: 20px;
-    }
+.btn {
+  border: 2px solid #000;
+  background: #f7d9c7;
+  cursor: pointer;
+  text-align: center;
+}
 
-    .btn {
-      border: 2px solid #000;
-      background: #f7d9c7;
-      cursor: pointer;
-      font-size: 16px;
-      text-align: center;
-    }
+.btn-disabled {
+  opacity: .5;
+  pointer-events: none;
+}
 
-    .btn-disabled {
-      opacity: 0.5;
-      pointer-events: none;
-    }
+.btn-start {
+  position: absolute;
+  top: 40px; left: 50%;
+  width: 220px; height: 70px;
+  transform: translateX(-50%);
+  font-size: 20px;
+  display: flex; justify-content: center; align-items: center;
+}
 
-    .btn-start {
-      position: absolute;
-      top: 40px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 220px;
-      height: 70px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 20px;
-    }
+.left-box {
+  position: absolute;
+  left: 32px; bottom: 40px;
+  border: 2px solid #000;
+}
 
-    .left-box {
-      position: absolute;
-      left: 32px;
-      bottom: 40px;
-      border: 2px solid #000;
-    }
+.label-research {
+  padding: 4px 0;
+  font-size: 12px;
+  background: #f7d9c7;
+  border-bottom: 2px solid #000;
+  cursor: pointer;
+}
 
-    .label-research {
-      font-size: 12px;
-      background: #f7d9c7;
-      border-bottom: 2px solid #000;
-      text-align: center;
-      padding: 4px 0;
-      cursor: pointer; /* 가게 연구만 활성 */
-    }
+.storage-disabled {
+  width: 96px;
+  padding: 10px 0;
+  font-size: 18px;
+  background: #f7d9c7;
+  opacity: .5;
+}
 
-    .storage-disabled {
-      padding: 10px 0;
-      width: 96px;
-      font-size: 18px;
-      background: #f7d9c7;
-      text-align: center;
-      opacity: 0.5;
-      cursor: default;
-    }
+.btn-exit-main {
+  position: absolute;
+  right: 32px; bottom: 72px;
+  width: 90px; height: 40px;
+  display: flex; justify-content: center; align-items: center;
+}
 
-    .btn-exit-main {
-      position: absolute;
-      right: 32px;
-      bottom: 72px;
-      width: 90px;
-      height: 40px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 18px;
-    }
+/* 연구 팝업 */
+.popup-research {
+  display: none;
+  width: 800px;
+  padding: 20px;
+  border: 2px solid #000;
+  background: #fff0e7;
+  border-radius: 12px;
+  flex-direction: column;
+  gap: 14px;
+}
 
-    /* ----------------- 가게 연구 팝업 ----------------- */
-    .popup-research {
-      display: none;
-      background: #f9d9c7;
-      border-radius: 16px;
-      padding: 24px 28px;
-      width: 720px;
-      max-width: 90vw;
-      color: #000;
-      flex-direction: column;
-      gap: 20px;
-      border: 2px solid #000;
-    }
+.research-title {
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+}
 
-    .research-title {
-      font-size: 20px;
-      text-align: center;
-      font-weight: 700;
-    }
+/* 레벨 선택 */
+.level-select {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
 
-    .research-layout {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+.level-btn {
+  border: 2px solid #000;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 13px;
+  background: #fff;
+}
 
-    /* 연구 노드 스크롤 영역 */
-    .node-scroll {
-      border: 2px solid #000;
-      background: #f4cbb5;
-      padding: 16px;
-      overflow-x: auto;
-      overflow-y: hidden;
-      max-width: 100%;
-    }
+.level-btn.active {
+  background: #ffd06e;
+}
 
-    .node-track {
-      display: flex;
-      gap: 80px;
-      min-width: 900px; /* 강제로 가로 스크롤 유도 */
-      align-items: center;
-    }
+/* 노드 스크롤 */
+.node-scroll {
+  width: 100%;
+  border: 2px solid #000;
+  background: #f7dcd1;
+  padding: 18px;
+  overflow-x: auto;
+}
 
-    .node-column {
-      display: flex;
-      flex-direction: column;
-      gap: 40px;
-      position: relative;
-    }
+.node-track {
+  display: flex;
+  gap: 40px;
+  min-width: 850px;
+  align-items: center;
+}
 
-    .start-column {
-      margin-right: 40px;
-    }
+.node-wrapper {
+  width: 140px;
+  border: 2px solid #000;
+  background: #cfcfcf;
+  text-align: center;
+  cursor: pointer;
+  opacity: .35; /* 기본: 비활성 */
+}
 
-    /* 노드 + 조건 UI */
-    .node-wrapper {
-      display: inline-flex;
-      flex-direction: column;
-      border: 2px solid #000;
-      background: #d0d0d0;
-      width: 160px;
-      cursor: pointer; /* 노드 전체 클릭 가능 */
-    }
+.node-wrapper.unlocked {
+  opacity: 1; /* 레벨 해금 */
+}
 
-    .node-wrapper.active {
-      background: #cfecc8; /* 활성: 초록 */
-    }
+.node-wrapper.active {
+  background: #ade9b5; /* 레시피 */
+}
 
-    .node-title {
-      padding: 10px;
-      text-align: center;
-      font-size: 16px;
-    }
+.node-wrapper.equip.active {
+  background: #b6d7ff; /* 장비 */
+}
 
-    .condition-bar {
-      border-top: 2px solid #000;
-      padding: 6px;
-      text-align: center;
-      font-size: 14px;
-      background: #e0e0e0; /* 기본: 회색 */
-      cursor: pointer;
-    }
+.node-title {
+  padding: 10px;
+  font-size: 15px;
+}
 
-    .condition-bar.met {
-      background: #d7e8ff; /* 조건 충족: 파란색 */
-    }
+/* 조건 */
+.condition-bar {
+  padding: 6px;
+  font-size: 13px;
+  border-top: 2px solid #000;
+  background: #ddd;
+  cursor: pointer;
+}
 
-    /* 시작 노드 전용 */
-    .start-node {
-      background: #cfecc8;
-      width: 140px;
-    }
+.condition-bar.met {
+  background: #cfe1ff; /* 조건 충족 */
+}
 
-    .start-node .node-title {
-      padding: 12px;
-    }
+/* 팝업 하단 */
+.research-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-    /* 간단한 화살표 라인 */
-    .arrow {
-      width: 60px;
-      height: 2px;
-      background: #000;
-      position: relative;
-      margin-left: 10px;
-      margin-right: 10px;
-    }
+.store-level {
+  background: #1b1b1b;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
 
-    .arrow::after {
-      content: "";
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      border-left: 8px solid #000;
-      border-top: 5px solid transparent;
-      border-bottom: 5px solid transparent;
-    }
+.btn-research-exit {
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #444;
+  color: #fff;
+  cursor: pointer;
+}
 
-    .arrow-vertical-branch {
-      width: 2px;
-      height: 80px;
-      background: #000;
-      position: absolute;
-      left: 180px;
-      top: 10px;
-    }
+/* 조건 팝업 */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  justify-content: center;
+  align-items: center;
+}
 
-    .arrow-vertical-branch::before,
-    .arrow-vertical-branch::after {
-      content: "";
-      position: absolute;
-      width: 16px;
-      height: 2px;
-      background: #000;
-    }
+.modal-content {
+  padding: 14px 18px;
+  border: 2px solid #000;
+  background: #fff;
+  border-radius: 8px;
+  min-width: 260px;
+}
 
-    .arrow-vertical-branch::before {
-      top: 0;
-      left: 0;
-    }
-
-    .arrow-vertical-branch::after {
-      bottom: 0;
-      left: 0;
-    }
-
-    /* 하단: 레벨/나가기 */
-    .research-bottom-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .store-level {
-      border: 1px solid #555;
-      background: #1b1b1b;
-      border-radius: 10px;
-      width: 140px;
-      padding: 8px;
-      font-size: 13px;
-      text-align: center;
-      color: #fff;
-    }
-
-    .store-level-value {
-      font-size: 16px;
-      font-weight: 700;
-    }
-
-    .btn-research-exit {
-      border: none;
-      padding: 10px 16px;
-      border-radius: 999px;
-      background: #444;
-      color: #fff;
-      cursor: pointer;
-    }
-
-    .btn-research-exit:hover {
-      background: #666;
-    }
-
-    /* ----------------- 노드 조건 팝업 ----------------- */
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.35);
-      justify-content: center;
-      align-items: center;
-      z-index: 20;
-    }
-
-    .modal-content {
-      background: #fffaf0;
-      border: 2px solid #000;
-      padding: 14px 18px;
-      min-width: 260px;
-      max-width: 320px;
-      position: relative;
-      border-radius: 8px;
-      font-size: 14px;
-      line-height: 1.4;
-    }
-
-    .modal-close {
-      position: absolute;
-      right: 8px;
-      top: 4px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 16px;
-    }
-
-    .modal-title {
-      font-weight: 700;
-      margin-bottom: 8px;
-      font-size: 15px;
-    }
-  </style>
+.modal-close {
+  position: absolute;
+  right: 10px; top: 6px;
+  cursor: pointer;
+}
+</style>
 </head>
 <body>
-  <div class="overlay">
 
-    <!-- 최초 팝업 -->
-    <div id="mainPopup" class="popup-main">
-      <div class="btn btn-start btn-disabled">가게 운영 시작</div>
+<div class="overlay">
 
-      <div class="left-box">
-        <div id="btnOpenResearch" class="label-research">가게 연구</div>
-        <div class="storage-disabled">창고</div>
-      </div>
+  <!-- 최초 -->
+  <div id="mainPopup" class="popup-main">
+    <div class="btn btn-start btn-disabled">가게 운영 시작</div>
 
-      <div class="btn btn-exit-main btn-disabled">나가기</div>
+    <div class="left-box">
+      <div id="btnOpenResearch" class="label-research">가게 연구</div>
+      <div class="storage-disabled">창고</div>
     </div>
 
-    <!-- 가게 연구 팝업 -->
-    <div id="researchPopup" class="popup-research">
-      <div class="research-title">가게 연구</div>
+    <div class="btn btn-exit-main btn-disabled">나가기</div>
+  </div>
 
-      <div class="research-layout">
-        <!-- 연구 노드 스크롤 영역 -->
-        <div class="node-scroll">
-          <div class="node-track">
-            <!-- 시작 노드 -->
-            <div class="node-column start-column">
-              <div class="node-wrapper start-node active"
-                   data-node-name="불고기 버거"
-                   data-condition-text="시작 노드입니다. 별도의 해금 조건이 필요하지 않습니다.">
-                <div class="node-title">불고기<br>버거</div>
-              </div>
-            </div>
 
-            <!-- 분기 지점 + 상단/하단 노드 -->
-            <div class="node-column">
-              <div class="arrow-vertical-branch"></div>
+  <!-- 연구 팝업 -->
+  <div id="researchPopup" class="popup-research">
+    <div class="research-title">가게 연구</div>
 
-              <!-- 상단 2단계 노드 -->
-              <div style="display:flex; align-items:center;">
-                <div class="arrow"></div>
-                <div class="node-wrapper"
-                     data-node-name="상단 2단계 버거"
-                     data-condition-text="불고기 버거 연구 완료 후 해금 가능합니다.">
-                  <div class="node-title">OOO 버거</div>
-                  <div class="condition-bar"
-                       data-condition-text="불고기 버거 연구 완료">
-                    조건
-                  </div>
-                </div>
-              </div>
+    <!-- 레벨 선택 -->
+    <div class="level-select">
+      <div class="level-btn active" data-level="1">Lv1</div>
+      <div class="level-btn" data-level="2">Lv2</div>
+      <div class="level-btn" data-level="3">Lv3</div>
+      <div class="level-btn" data-level="4">Lv4</div>
+      <div class="level-btn" data-level="5">Lv5</div>
+    </div>
 
-              <!-- 하단 2단계 노드 -->
-              <div style="display:flex; align-items:center;">
-                <div class="arrow"></div>
-                <div class="node-wrapper active"
-                     data-node-name="하단 2단계 버거"
-                     data-condition-text="매출 500G 달성 시 추천되는 버거입니다.">
-                  <div class="node-title">OOO 버거</div>
-                  <div class="condition-bar met"
-                       data-condition-text="매출 500G 이상 달성">
-                    조건
-                  </div>
-                </div>
-              </div>
-            </div>
+    <!-- 노드 트랙 -->
+    <div class="node-scroll">
+      <div class="node-track" id="nodeTrack">
 
-            <!-- 상단 3단계 노드 -->
-            <div class="node-column">
-              <div style="display:flex; align-items:flex-start; gap:40px;">
-                <div style="display:flex; align-items:center;">
-                  <div class="arrow"></div>
-                  <div class="node-wrapper"
-                       data-node-name="상단 3단계 버거"
-                       data-condition-text="상단 2단계 버거 연구 완료 후 해금됩니다.">
-                    <div class="node-title">OOO 버거</div>
-                    <div class="condition-bar"
-                         data-condition-text="상단 2단계 버거 연구 완료">
-                      조건
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 하단 3단계 노드 -->
-              <div style="display:flex; align-items:flex-end; gap:40px; margin-top:40px;">
-                <div style="display:flex; align-items:center;">
-                  <div class="arrow"></div>
-                  <div class="node-wrapper"
-                       data-node-name="하단 3단계 버거"
-                       data-condition-text="하단 2단계 버거 연구 완료 후 해금됩니다.">
-                    <div class="node-title">OOO 버거</div>
-                    <div class="condition-bar"
-                         data-condition-text="하단 2단계 버거 연구 완료">
-                      조건
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
+        <!-- Lv1 - 레시피 -->
+        <div class="node-wrapper recipe unlocked active"
+          data-node-level="1"
+          data-node-name="불고기 버거"
+          data-condition="시작 노드입니다.">
+          <div class="node-title">불고기 버거</div>
+          <div class="condition-bar met">조건</div>
         </div>
 
-        <!-- 하단: 레벨 + 나가기 -->
-        <div class="research-bottom-row">
-          <div class="store-level">
-            <div>가게 레벨</div>
-            <div class="store-level-value">Lv. 1</div>
-          </div>
-
-          <button id="btnBackToMain" class="btn-research-exit">나가기</button>
+        <!-- Lv2 - 레시피 -->
+        <div class="node-wrapper recipe"
+          data-node-level="2"
+          data-node-name="치즈 버거"
+          data-condition="Lv1 연구 완료 시 해금">
+          <div class="node-title">치즈 버거</div>
+          <div class="condition-bar">조건</div>
         </div>
+
+        <!-- Lv3 - 레시피 -->
+        <div class="node-wrapper recipe"
+          data-node-level="3"
+          data-node-name="새우 버거"
+          data-condition="Lv2 연구 완료 시 해금">
+          <div class="node-title">새우 버거</div>
+          <div class="condition-bar">조건</div>
+        </div>
+
+
+        <!-- Lv2 - 장비 -->
+        <div class="node-wrapper equip"
+          data-node-level="2"
+          data-node-name="자동 조리기"
+          data-condition="Lv1 연구 완료 시 해금">
+          <div class="node-title">자동 조리기</div>
+          <div class="condition-bar">조건</div>
+        </div>
+
+        <!-- Lv3 - 장비 -->
+        <div class="node-wrapper equip"
+          data-node-level="3"
+          data-node-name="자동 서빙기"
+          data-condition="Lv2 연구 완료 시 해금">
+          <div class="node-title">자동 서빙기</div>
+          <div class="condition-bar">조건</div>
+        </div>
+
+        <!-- Lv4 - 장비 -->
+        <div class="node-wrapper equip"
+          data-node-level="4"
+          data-node-name="재료 자동주문"
+          data-condition="Lv3 연구 완료 시 해금">
+          <div class="node-title">재료 자동주문</div>
+          <div class="condition-bar">조건</div>
+        </div>
+
       </div>
+    </div>
+
+    <!-- 바닥 -->
+    <div class="research-bottom-row">
+      <div class="store-level" id="storeLevelLabel">가게 레벨: 1</div>
+      <div id="btnBackToMain" class="btn-research-exit">나가기</div>
     </div>
   </div>
 
-  <!-- 노드 조건 팝업 -->
-  <div id="nodeConditionModal" class="modal">
-    <div class="modal-content">
-      <div id="modalClose" class="modal-close">✕</div>
-      <div class="modal-title">연구 조건</div>
-      <div id="modalConditionText">
-        조건 내용이 여기에 표시됩니다.
-      </div>
-    </div>
+</div>
+
+<!-- 조건 팝업 -->
+<div id="nodeConditionModal" class="modal">
+  <div class="modal-content">
+    <div id="modalClose" class="modal-close">✕</div>
+    <div id="modalConditionText"></div>
   </div>
+</div>
 
-  <script>
-    const mainPopup = document.getElementById("mainPopup");
-    const researchPopup = document.getElementById("researchPopup");
-    const btnOpenResearch = document.getElementById("btnOpenResearch");
-    const btnBackToMain = document.getElementById("btnBackToMain");
+<script>
+const mainPopup = document.getElementById("mainPopup");
+const researchPopup = document.getElementById("researchPopup");
+const nodeTrack = document.getElementById("nodeTrack");
+const storeLevelLabel = document.getElementById("storeLevelLabel");
 
-    const modal = document.getElementById("nodeConditionModal");
-    const modalText = document.getElementById("modalConditionText");
-    const modalClose = document.getElementById("modalClose");
+// 팝업 이동
+document.getElementById("btnOpenResearch").onclick = () => {
+  mainPopup.style.display = "none";
+  researchPopup.style.display = "flex";
+};
 
-    // 최초 팝업 → 가게 연구 팝업
-    btnOpenResearch.addEventListener("click", () => {
-      mainPopup.style.display = "none";
-      researchPopup.style.display = "flex";
-    });
+// 나가기
+document.getElementById("btnBackToMain").onclick = () => {
+  researchPopup.style.display = "none";
+  mainPopup.style.display = "block";
+};
 
-    // 가게 연구 팝업 → 최초 팝업
-    btnBackToMain.addEventListener("click", () => {
-      researchPopup.style.display = "none";
-      mainPopup.style.display = "block";
-    });
+// 레벨 선택
+const levelBtns = document.querySelectorAll(".level-btn");
+levelBtns.forEach(btn => {
+  btn.onclick = () => {
+    levelBtns.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
 
-    // 노드 클릭: 활성/비활성 토글 + 조건 팝업
-    const nodes = document.querySelectorAll(".node-wrapper");
-    nodes.forEach(node => {
-      node.addEventListener("click", (e) => {
-        // 상태 토글
-        node.classList.toggle("active");
+    const level = parseInt(btn.dataset.level);
+    storeLevelLabel.textContent = `가게 레벨: ${level}`;
+    updateNodeUnlock(level);
+  };
+});
 
-        // 팝업 표시
-        const conditionText = node.dataset.conditionText || "예시 조건 텍스트입니다.";
-        modalText.textContent = conditionText;
-        modal.style.display = "flex";
+const nodes = document.querySelectorAll(".node-wrapper");
+const modal = document.getElementById("nodeConditionModal");
+const modalText = document.getElementById("modalConditionText");
+const modalClose = document.getElementById("modalClose");
 
-        e.stopPropagation();
-      });
-    });
+// 노드 클릭 : 활성 토글 + 팝업
+nodes.forEach(node => {
+  node.addEventListener("click", e => {
+    if (!node.classList.contains("unlocked")) return;
 
-    // 조건 바 클릭: 회색 ↔ 파란색 토글
-    const conditions = document.querySelectorAll(".condition-bar");
-    conditions.forEach(cond => {
-      cond.addEventListener("click", (e) => {
-        cond.classList.toggle("met");
-        e.stopPropagation(); // 노드 클릭 이벤트로 전달 방지
-      });
-    });
+    node.classList.toggle("active");
 
-    // 팝업 닫기
-    modalClose.addEventListener("click", () => {
-      modal.style.display = "none";
-    });
+    modalText.textContent = node.dataset.condition;
+    modal.style.display = "flex";
+    e.stopPropagation();
+  });
+});
 
-    // 팝업 배경 클릭 시 닫기
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) {
-        modal.style.display = "none";
-      }
-    });
-  </script>
+// 조건 클릭: 파란색 토글
+const conditions = document.querySelectorAll(".condition-bar");
+conditions.forEach(cond => {
+  cond.onclick = e => {
+    if (!cond.parentElement.classList.contains("unlocked")) return;
+    cond.classList.toggle("met");
+    e.stopPropagation();
+  };
+});
+
+// 팝업 닫기
+modalClose.onclick = () => modal.style.display = "none";
+modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
+
+
+// ▶ 핵심: 레벨별 해금 로직
+function updateNodeUnlock(level) {
+  nodes.forEach(node => {
+    const req = parseInt(node.dataset.nodeLevel);
+    if (req <= level) {
+      node.classList.add("unlocked");
+    } else {
+      node.classList.remove("unlocked", "active");
+      node.querySelector(".condition-bar").classList.remove("met");
+    }
+  });
+}
+
+updateNodeUnlock(1);
+</script>
 </body>
 </html>
