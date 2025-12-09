@@ -12,8 +12,8 @@
 
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #111;
-      color: #fff;
+      background: #ffffff;
+      color: #000;
       height: 100vh;
       display: flex;
       align-items: center;
@@ -24,7 +24,7 @@
     .overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.1);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -32,94 +32,120 @@
 
     /* 공통 팝업 스타일 */
     .popup {
+      position: relative;
+      background: #0f607a;          /* 파란-청록 배경 */
+      border: 3px solid #000000;
+      width: 360px;
+      height: 260px;
+      padding: 20px;
+    }
+
+    /* 버튼 공통 */
+    .btn {
+      border: 2px solid #000000;
+      background: #f7d9c7;          /* 살굿빛 배경 */
+      cursor: pointer;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    .btn-disabled {
+      opacity: 0.5;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    /* 최초 팝업 레이아웃 */
+    .btn-start {
+      position: absolute;
+      top: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 220px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .left-group {
+      position: absolute;
+      left: 32px;
+      bottom: 40px;
+      display: flex;
+      flex-direction: column;
+      border: 2px solid #000000;
+    }
+
+    .left-group .label {
+      background: #f7d9c7;
+      border-bottom: 2px solid #000000;
+      padding: 4px 8px;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .left-group .btn-store {
+      background: #f7d9c7;
+      padding: 10px 16px;
+      font-size: 18px;
+      text-align: center;
+      cursor: default;
+    }
+
+    .btn-research {
+      position: absolute;
+      left: 32px;
+      bottom: 40px;
+      width: 96px;
+      height: 30px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      /* 실제 클릭 영역: left-group 전체로 쉽게 처리해도 되지만,
+         여기서는 '가게 연구' 영역만 클릭된다고 가정 */
+    }
+
+    .btn-exit-main {
+      position: absolute;
+      right: 32px;
+      bottom: 72px;
+      width: 90px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    /* 가게 연구 팝업 구성 */
+    .popup-research {
       background: #222;
       border-radius: 16px;
       padding: 24px 28px;
       min-width: 420px;
       max-width: 520px;
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+      color: #fff;
       display: flex;
       flex-direction: column;
       gap: 20px;
     }
 
-    .popup-title {
+    .research-title {
       font-size: 20px;
       font-weight: 700;
       text-align: center;
       margin-bottom: 8px;
     }
 
-    .popup-desc {
+    .research-desc {
       font-size: 14px;
       text-align: center;
       color: #aaa;
     }
 
-    /* 버튼 공통 */
-    .btn-row {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-top: 8px;
-    }
-
-    .btn {
-      border: none;
-      padding: 10px 16px;
-      border-radius: 999px;
-      font-size: 14px;
-      cursor: pointer;
-      background: #444;
-      color: #fff;
-      min-width: 110px;
-      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease, opacity 0.08s ease;
-    }
-
-    .btn-primary {
-      background: #ffb347;
-    }
-
-    .btn:hover:not(.btn-disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-    }
-
-    .btn:active:not(.btn-disabled) {
-      transform: translateY(0);
-      box-shadow: none;
-    }
-
-    .btn-disabled {
-      opacity: 0.4;
-      cursor: default;
-      pointer-events: none;
-    }
-
-    /* 최초 팝업 버튼 정렬 */
-    .main-buttons {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      column-gap: 16px;
-      row-gap: 8px;
-      margin-top: 16px;
-      align-items: center;
-    }
-
-    .main-buttons .center {
-      grid-column: 1 / 3;
-      justify-self: center;
-    }
-
-    .align-left {
-      justify-self: start;
-    }
-
-    .align-right {
-      justify-self: end;
-    }
-
-    /* 가게 연구 팝업 구성 */
     .research-layout {
       display: flex;
       flex-direction: column;
@@ -165,48 +191,51 @@
       font-size: 16px;
       font-weight: 700;
     }
+
+    .btn-research-exit {
+      border: none;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 14px;
+      cursor: pointer;
+      background: #444;
+      color: #fff;
+    }
+
+    .btn-research-exit:hover {
+      background: #666;
+    }
   </style>
 </head>
 <body>
   <div class="overlay">
     <!-- 최초 팝업 -->
     <div id="mainPopup" class="popup">
-      <div>
-        <div class="popup-title">가게 관리</div>
-        <p class="popup-desc">
-          가게 운영을 시작하거나, 연구 · 창고 기능을 확인하는 화면입니다.<br />
-          프로토타입에서는 <strong>가게 연구</strong>만 상호작용 가능합니다.
-        </p>
+      <!-- 중앙: 가게 운영 시작 (비활성화) -->
+      <button class="btn btn-start btn-disabled" disabled>
+        가게 운영 시작
+      </button>
+
+      <!-- 좌측 하단: 가게 연구 / 창고 박스 -->
+      <div class="left-group">
+        <div class="label">가게 연구</div>
+        <div class="btn-store">창고</div>
       </div>
 
-      <div class="main-buttons">
-        <!-- 중앙: 가게 운영 시작 (비활성화) -->
-        <button class="btn btn-primary center btn-disabled" disabled>
-          가게 운영 시작
-        </button>
+      <!-- 실제 클릭되는 가게 연구 버튼 (레이블 영역) -->
+      <button id="btnOpenResearch" class="btn-research" aria-label="가게 연구 버튼"></button>
 
-        <!-- 좌측 하단: 가게 연구 (활성) -->
-        <button id="btnOpenResearch" class="btn align-left">
-          가게 연구
-        </button>
-
-        <!-- 좌측 하단: 창고 (비활성화) -->
-        <button class="btn align-left btn-disabled" disabled>
-          창고
-        </button>
-
-        <!-- 우측: 나가기 (비활성화) -->
-        <button class="btn align-right btn-disabled" disabled>
-          나가기
-        </button>
-      </div>
+      <!-- 우측: 나가기 (비활성화) -->
+      <button class="btn btn-exit-main btn-disabled" disabled>
+        나가기
+      </button>
     </div>
 
     <!-- 가게 연구 팝업 -->
-    <div id="researchPopup" class="popup" style="display: none;">
+    <div id="researchPopup" class="popup-research" style="display: none;">
       <div>
-        <div class="popup-title">가게 연구</div>
-        <p class="popup-desc">
+        <div class="research-title">가게 연구</div>
+        <p class="research-desc">
           연구 노드 UI와 가게 레벨 UI 구조를 확인하기 위한 프로토타입입니다.
         </p>
       </div>
@@ -224,7 +253,7 @@
             <div class="store-level-value">Lv. 1</div>
           </div>
 
-          <button id="btnBackToMain" class="btn">
+          <button id="btnBackToMain" class="btn-research-exit">
             나가기
           </button>
         </div>
@@ -247,7 +276,7 @@
     // 가게 연구 팝업 → 최초 팝업
     btnBackToMain.addEventListener("click", () => {
       researchPopup.style.display = "none";
-      mainPopup.style.display = "flex";
+      mainPopup.style.display = "block";
     });
   </script>
 </body>
